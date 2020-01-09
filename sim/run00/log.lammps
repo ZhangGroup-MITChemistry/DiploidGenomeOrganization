@@ -1,0 +1,151 @@
+LAMMPS (5 Nov 2016)
+variable        rseed equal   4928459
+
+#  ----    Settings  ----
+variable        T   equal   1.0
+units           lj
+atom_style      full
+boundary        s   s   s
+special_bonds   fene
+
+read_data	/nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/init_structure//data.genome
+  orthogonal box = (-13.8952 -12.5847 -17.1971) to (12.1805 13.9882 10.0475)
+  1 by 1 by 1 MPI processor grid
+  reading atoms ...
+  6106 atoms
+  scanning bonds ...
+  1 = max bonds/atom
+  scanning angles ...
+  1 = max angles/atom
+  reading bonds ...
+  6060 bonds
+  reading angles ...
+  6014 angles
+  2 = max # of 1-2 neighbors
+  2 = max # of special neighbors
+neighbor        0.4 bin
+neigh_modify    every 1 delay 1
+atom_modify     sort 0 0.0
+
+#   ----    Force Field     ----
+bond_style      fene
+bond_coeff      1 30.0 1.5 1.0 1.0
+angle_style     cosine/delta
+angle_coeff     1   2.0     180.0
+
+pair_style	hybrid/overlay table linear 10000 tanhlr/cut/ideals 6.0 /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/energy_file//ideal_potential_autosome.txt /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/energy_file//ideal_potential_Xi.txt 1.000 tanhlr/cut/domainab 6.0 3 46 /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/sim_file//bead_index.txt /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/sim_file//specific_ab_index.txt /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/energy_file//specific_AB_potential.txt
+pair_coeff	* * table /nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/energy_file//soft_core_lj_4kT.table soft_core_lj 1.12
+WARNING: 4174 of 10006 force values in table are inconsistent with -dE/dr.
+  Should only be flagged at inflection points (../pair_table.cpp:474)
+WARNING: 9976 of 10006 distance values in table with relative error
+  over 1e-06 to re-computed values (../pair_table.cpp:483)
+WARNING: 1 of 10006 lines in table were incomplete
+  or could not be parsed completely (../pair_table.cpp:492)
+pair_coeff      * *  tanhlr/cut/ideals     0.0  1.5  2.5
+include		/nobackup1b/users/qiyf/project_colon_hic/swf/swf-diploid-wng-gm/src/md/energy_file//intra_AB_and_homolog.txt
+pair_coeff         1    1  tanhlr/cut/domainab        0.000000    -0.051915    -0.298190 1.50  2.50
+pair_coeff         1    2  tanhlr/cut/domainab        0.000000     0.032837    -0.082856 1.50  2.50
+pair_coeff         1    3  tanhlr/cut/domainab        0.000000    -0.015727    -0.171398 1.50  2.50
+pair_coeff         1    4  tanhlr/cut/domainab        0.000000     0.000000     0.000000 1.50  2.50
+pair_coeff         2    2  tanhlr/cut/domainab        0.000000    -0.071795    -0.168044 1.50  2.50
+pair_coeff         2    3  tanhlr/cut/domainab        0.000000    -0.063146    -0.262911 1.50  2.50
+pair_coeff         2    4  tanhlr/cut/domainab        0.000000     0.000000     0.000000 1.50  2.50
+pair_coeff         3    3  tanhlr/cut/domainab        0.000000    -0.350400    -0.463110 1.50  2.50
+pair_coeff         3    4  tanhlr/cut/domainab        0.000000     0.000000     0.000000 1.50  2.50
+pair_coeff         4    4  tanhlr/cut/domainab        0.000000     0.000000     0.000000 1.50  2.50
+pair_modify     tabinner 0.0000000001 shift yes
+
+thermo          2000
+thermo_style    custom time temp pe etotal epair ebond eangle press vol
+thermo_modify   norm no flush yes
+
+#   ----    spherical confinement     ----
+region          nucleus sphere 0.0 0.0 0.0 19.6889370749 side in
+fix             wall all wall/region nucleus lj126 1.0 1.0 1.12
+
+fix             1 all nve
+
+minimize        1.0e-4 1.0e-6 100 1000
+WARNING: Resetting reneighboring criteria during minimization (../min.cpp:168)
+Neighbor list info ...
+  3 neighbor list requests
+  update every 1 steps, delay 0 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 6.4
+  ghost atom cutoff = 6.4
+  binsize = 3.2 -> bins = 9 9 9
+Memory usage per processor = 2.87935 Mbytes
+Time Temp PotEng TotEng E_pair E_bond E_angle Press Volume 
+           0            0    141267.19    141267.19    3162.4822    125510.72    12593.993  0.050521618    18748.263 
+         0.5            0    124991.48    124991.48   -5169.3191    122461.16    7699.6333  -0.29148655     18043.66 
+Loop time of 21.7257 on 1 procs for 100 steps with 6106 atoms
+
+99.8% CPU use with 1 MPI tasks x no OpenMP threads
+
+Minimization stats:
+  Stopping criterion = max iterations
+  Energy initial, next-to-last, final = 
+         141267.193457      125033.228036      124991.475202
+  Force two-norm initial, final = 3754.52 333.302
+  Force max component initial, final = 279.512 60.258
+  Final line search alpha, max atom move = 0.00134876 0.0812736
+  Iterations, force evaluations = 100 196
+
+MPI task timing breakdown:
+Section |  min time  |  avg time  |  max time  |%varavg| %total
+---------------------------------------------------------------
+Pair    | 20.024     | 20.024     | 20.024     |   0.0 | 92.17
+Bond    | 0.3316     | 0.3316     | 0.3316     |   0.0 |  1.53
+Neigh   | 1.3059     | 1.3059     | 1.3059     |   0.0 |  6.01
+Comm    | 0.0019014  | 0.0019014  | 0.0019014  |   0.0 |  0.01
+Output  | 0.0013611  | 0.0013611  | 0.0013611  |   0.0 |  0.01
+Modify  | 0.026137   | 0.026137   | 0.026137   |   0.0 |  0.12
+Other   |            | 0.03528    |            |       |  0.16
+
+Nlocal:    6106 ave 6106 max 6106 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Nghost:    0 ave 0 max 0 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+Neighs:    1.91441e+06 ave 1.91441e+06 max 1.91441e+06 min
+Histogram: 1 0 0 0 0 0 0 0 0 0
+
+Total # of neighbors = 1914406
+Ave neighs/atom = 313.529
+Ave special neighs/atom = 1.98493
+Neighbor list builds = 25
+Dangerous builds = 0
+velocity        all create 2.0 ${rseed} rot yes mom yes dist gaussian
+velocity        all create 2.0 4928459 rot yes mom yes dist gaussian
+
+#    ----    High temperature equilibration     ----
+# timestep        0.005
+# dump            1 all dcd 2000 DUMP_FILE_highT.dcd
+# dump_modify     1 unwrap yes
+# fix             2 all langevin 2.0 1.0 10.0 ${rseed}
+# run             100000
+# undump          1
+# unfix           2
+
+
+#    ----    Normal temperature simulation     ----
+dump            2 all dcd 2000 DUMP_FILE.dcd
+dump_modify     2 unwrap yes
+
+timestep        0.01
+
+fix             3 all langevin ${T} ${T} 10.0 ${rseed}
+fix             3 all langevin 1 ${T} 10.0 ${rseed}
+fix             3 all langevin 1 1 10.0 ${rseed}
+fix             3 all langevin 1 1 10.0 4928459
+run             40000000
+Neighbor list info ...
+  3 neighbor list requests
+  update every 1 steps, delay 1 steps, check yes
+  max neighbors/atom: 2000, page size: 100000
+  master list distance cutoff = 6.4
+  ghost atom cutoff = 6.4
+  binsize = 3.2 -> bins = 9 9 9
+Memory usage per processor = 2.52996 Mbytes
+Time Temp PotEng TotEng E_pair E_bond E_angle Press Volume 
+           0            2    124991.48    143306.48   -5169.3191    122461.16    7699.6333   0.38539431    18034.817 
+          19    1.0325081    129852.25    139307.45   -1416.6503    125834.05    5434.8585 0.0066015128    41588.456 
