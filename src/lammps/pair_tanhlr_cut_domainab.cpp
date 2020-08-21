@@ -115,7 +115,8 @@ void PairTanhlrCutDomainab::compute(int eflag, int vflag)
       jglobal = atom->tag[j];
       // we do not want to apply pair potential for beads in the same segment 
       
-      if (rsq < cutsq[itype][jtype]) {
+      if ((imol<47) && (jmol<47) && (rsq < cutsq[itype][jtype])) {
+      //if (rsq < cutsq[itype][jtype]) {
         
         int iscale = 3;
         // **** add intra-chrom interaction to inter-homologs ****
@@ -268,7 +269,7 @@ void PairTanhlrCutDomainab::settings(int narg, char **arg)
     // The second site
     if (!ptr)
       error->all(FLERR,"Incorrectly formatted domain file");
-    //printf("reading: %d %d\n", idx,atoi(ptr));
+    // printf("reading: %d %d\n", idx,atoi(ptr));
     domain[idx] = atoi(ptr); 
 
   }
