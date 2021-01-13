@@ -186,7 +186,9 @@ void PairTanhlrCutDomainab::compute(int eflag, int vflag)
         }
 
         if (eflag) {
-          evdwl = utanh - offset[iscale][itype][jtype];
+          //evdwl = utanh - offset[iscale][itype][jtype];
+          //The energy with the correct offset is 
+          evdwl = utanh - alpha*offset[iscale][itype][jtype];
           evdwl *= factor_lj;
         }
 
@@ -388,7 +390,11 @@ double PairTanhlrCutDomainab::init_one(int i, int j)
     double rexp = (rmh[i][j]-cut[i][j])*sigmah[i][j];
     for (int s=1; s <= nscale; s++) {
         //offset[s][i][j] = ptanh[s][i][j] * (1.0 + tanh(rexp));
-        offset[s][i][j] = ptanh[s][i][j]*pow(rmh[i][j],4.0)/pow(cut[i][j],4.0);
+        //offset[s][i][j] = ptanh[s][i][j]*pow(rmh[i][j],4.0)/pow(cut[i][j],4.0);
+        //The above line is the old offset 
+        //The below line does not have the prefactor. The prefactor will be accounted 
+        //on a case by case basis within the compute function
+        offset[s][i][j] = pow(rmh[i][j],4.0)/pow(cut[i][j],4.0);
     }
   } else {
     //offset[i][j] = 0.0;
